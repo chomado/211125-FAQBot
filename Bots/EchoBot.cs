@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.14.0
@@ -35,10 +35,14 @@ namespace EchoBot7.Bots
             QuestionAnsweringClient client = new QuestionAnsweringClient(endpoint, credential);
             QuestionAnsweringProject project = new QuestionAnsweringProject(projectName, deploymentName);
 
-            Response<AnswersResult> response = client.GetAnswers(turnContext.Activity.Text, project);
+            AnswersOptions options = new AnswersOptions(); 
+            options.ConfidenceThreshold = 0.10; 
+
+            Response<AnswersResult> response = await client.GetAnswersAsync(turnContext.Activity.Text, project, options);
 
             var replyText = response.Value.Answers.First().Answer;
             await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
+            await turnContext.SendActivityAsync(MessageFactory.Text($"確信度： {response.Value.Answers.First().Confidence * 100}％", replyText), cancellationToken);
         }
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
