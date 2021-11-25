@@ -27,22 +27,22 @@ namespace EchoBot7.Bots
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            Uri endpoint = new Uri(configuration["Endpoint"]);
-            AzureKeyCredential credential = new AzureKeyCredential(configuration["Key"]);
-            string projectName = configuration["ProjectName"];
-            string deploymentName = "production";
+            var endpoint = new Uri(configuration["Endpoint"]);
+            var credential = new AzureKeyCredential(configuration["Key"]);
+            var projectName = configuration["ProjectName"];
+            var deploymentName = "production";
 
-            QuestionAnsweringClient client = new QuestionAnsweringClient(endpoint, credential);
-            QuestionAnsweringProject project = new QuestionAnsweringProject(projectName, deploymentName);
+            var client = new QuestionAnsweringClient(endpoint, credential);
+            var project = new QuestionAnsweringProject(projectName, deploymentName);
 
-            AnswersOptions options = new AnswersOptions(); 
+            var options = new AnswersOptions(); 
             options.ConfidenceThreshold = 0.10; 
 
             Response<AnswersResult> response = await client.GetAnswersAsync(turnContext.Activity.Text, project, options);
 
             var replyText = response.Value.Answers.First().Answer;
             await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
-            await turnContext.SendActivityAsync(MessageFactory.Text($"確信度： {response.Value.Answers.First().Confidence * 100}％", replyText), cancellationToken);
+            await turnContext.SendActivityAsync(MessageFactory.Text($"確信度： {response.Value.Answers.First().Confidence * 100:00.00}％", replyText), cancellationToken);
         }
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
